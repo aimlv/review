@@ -32,13 +32,14 @@ import Feature from './childNode/Feature.vue'
 import TabBarControl from 'components/content/TabBarControl.vue'
 import Goods from 'components/content/goods/Goods.vue'
 import Scroll from 'components/common/scroll/Scroll.vue'
-import BackTop from 'components/content/backTop/BackTop.vue'
-import {itemListenerMixin} from '../../common/mixIn'
+
+import {itemListenerMixin,backTopListenerMixin} from '../../common/mixIn'
 
 
 export default {
-  components: { NavTab,NavTabItem,Swiper,SwiperItem,Recommend,Feature, TabBarControl, Goods, Scroll, BackTop},
+  components: { NavTab,NavTabItem,Swiper,SwiperItem,Recommend,Feature, TabBarControl, Goods, Scroll},
     name:"Home",
+    mixins:[itemListenerMixin,backTopListenerMixin],
     data(){
       return {
         banners : [],
@@ -49,7 +50,6 @@ export default {
           "sell":{page:0,list:[]}
         },
         currentType:'new',
-        isShowImg:false,
         tabControlOffsetTop:0,
         isLoad:false,
         istabControl:false,
@@ -71,7 +71,6 @@ export default {
     mounted(){
       
     },
-    mixins:[itemListenerMixin],
     destroyed(){
       console.log('home-destroyed');
     },
@@ -92,9 +91,7 @@ export default {
         this.tabControlOffsetTop = this.$refs.homeControl2.$el.offsetTop - 40
         this.isLoad = true
       }
-      
      },
-     
      tabClick(index){
       //  console.log(111);
        switch(index){
@@ -112,12 +109,9 @@ export default {
        this.$refs.homeControl2.currentIndex = index;
        this.$refs.homeControl1.currentIndex = index; 
      },
-     backTop(){
-        this.$refs.scroll.scrollTo(0,0,500)
-     },
      backTopClick(position){
        //控制置顶的效果
-       this.isShowImg = (-position.y) > 500
+       this.isShowImg = (-position.y) > 1000
        //控制tabControl显示隐藏的效果
        this.istabControl = (-position.y) >= this.tabControlOffsetTop
      },

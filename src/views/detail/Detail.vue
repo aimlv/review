@@ -1,5 +1,6 @@
 <template>
   <div id="detail">
+      
      <detail-nav-item :title="['商品','参数','评价','推荐']" @changePostion="scrollPosition" ref="nav"></detail-nav-item>
      <scroll class="wrapper" :pull-up-load="true" ref="scroll" @scroll="contentScroll" :probe-type="3">
      <detail-swiper :top-images="topImages"></detail-swiper>
@@ -10,6 +11,8 @@
      <detail-evaluate :evaluate="evaluate" ref="evaluate"></detail-evaluate>
      <goods :goods="recommend" ref="recommend"></goods>
      </scroll>
+     <detail-bottom-nav @addCart="addCart"></detail-bottom-nav>
+     <back-top v-show="isShowImg" @click.native="backTop"></back-top>
   </div>
 </template>
 
@@ -24,11 +27,13 @@ import DetailGoodsSize from './childComp/DetailGoodsSize.vue'
 import DetailEvaluate from './childComp/DetailEvaluate.vue'
 import Scroll from 'components/common/scroll/Scroll.vue'
 import Goods from 'components/content/goods/Goods.vue'
-import {itemListenerMixin} from '../../common/mixIn'
+import {itemListenerMixin,backTopListenerMixin} from '../../common/mixIn'
 import { debounce } from '../../common/utils'
+import DetailBottomNav from './childComp/DetailBottomNav.vue'
 export default {
-  components: {DetailNavItem, DetailSwiper, DetailFeature, DetailShopInfo, DetailShow, DetailGoodsSize, DetailEvaluate, Scroll, Goods},
+  components: {DetailNavItem, DetailSwiper, DetailFeature, DetailShopInfo, DetailShow, DetailGoodsSize, DetailEvaluate, Scroll, Goods, DetailBottomNav},
     name:"Detail",
+    mixins:[itemListenerMixin,backTopListenerMixin],
     data(){
         return {
             iid:null,
@@ -76,11 +81,25 @@ export default {
         },50)
     },      
     methods:{
+        addCart(){
+            const product = {};
+            product.image = this.topImages[0];
+            product.title = this.goods.title;
+            product.desc = this.goods.desc;
+            product.price = this.goods.realPrice;
+            product.iid = this.iid
+            // console.log(product);
+            this.$store.dispatch('dealCart',product).then(res=>{
+                console.log(res);
+                this.$toast.show(res,2000)
+            })
+        },
         contentScroll(position){
+            this.isShowImg = (-position.y) > 1000 
             const positionY = -position.y
             let length = this.scrollY.length
             for(let i=0;i<length;i++){
-                if(this.currentCount != i && (0 < i < length - 1 && positionY >= this.scrollY[i] && positionY <this.scrollY[i+1]) ||this.currentCount != i && (i === length -1 && positionY >= this.scrollY[i])){
+                if((this.currentCount != i) && (0 < i < length - 1 && positionY >= this.scrollY[i] && positionY <this.scrollY[i+1]) ||(i === length -1 && positionY >= this.scrollY[i])){
                     this.currentCount = i
                     this.$refs.nav.currentIndex = this.currentCount
                 }
@@ -101,7 +120,6 @@ export default {
     mounted(){
 
     },
-    mixins:[itemListenerMixin]
 }
 </script>
 
@@ -113,7 +131,7 @@ export default {
     height: 100vh;
 }
 .wrapper{
-    height: calc(100% - 44px);
+    height: calc(100% - 44px - 49px);
     overflow: hidden;
 }
 </style>
