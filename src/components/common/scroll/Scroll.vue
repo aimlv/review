@@ -20,6 +20,12 @@ export default {
         pullUpLoad:{
             type:Boolean,
             default:false
+        },
+        data:{
+            type:Array,
+            default(){
+                return []
+            }
         }
     },
     data(){
@@ -53,7 +59,12 @@ export default {
         },
         getSaveY(){
             return this.scroll.y
-        }
+        }  
+    },
+    watch: {
+		  data() {
+        setTimeout(this.refresh, 20)
+      }
     }
 }
 </script>
